@@ -12,7 +12,7 @@ Three different levels in each branch
     * One
         * In terminal:
             export FLASK_APP=app.py
-            export FLASK_DEV=development
+            export FLASK_DEBUG=development
             flask run
     * Two
         * Include in the python file:
