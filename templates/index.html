@@ -8,7 +8,16 @@
 
 {% block main %}
 <main>
-    <p>Testing testing!</p>
+    <form action="/" method="POST">
+        <input type="text" name="item" placeholder="Add item" autofocus autocomplete="off">
+        <button>Add item</button>
+    </form>
+
+    <ul id="todoItems">
+        {% for item in items %}
+        <li>{{ item }}</li>
+        {% endfor %}
+    </ul>
 </main>
 {% endblock %}
 
