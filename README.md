@@ -22,6 +22,8 @@ Three different levels in each branch
 
 ## Database
 * Using postgress with psycopg2
+    * create a database
+        * In Terminal: createdb todoapp
     * pip install psycopg2
 
 ## Migration
