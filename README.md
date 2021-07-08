@@ -21,6 +21,8 @@ Three different levels in each branch
         * python app.py
 
 ## Database
+* Using postgress with psycopg2
+    * pip install psycopg2
 
 ## Migration
 
