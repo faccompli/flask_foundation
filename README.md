@@ -21,10 +21,13 @@ Three different levels in each branch
         * python app.py
 
 ## Database
-* Using postgress with psycopg2
+* Using postgres with psycopg2
     * create a database
         * In Terminal: createdb todoapp
     * pip install psycopg2
+
+* Using postgres with SQLAlchemy
+    * install flask_sqlalchemy AND psycopg2 
 
 ## Migration
 

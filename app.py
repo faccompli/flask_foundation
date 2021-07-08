@@ -1,73 +1,31 @@
 from flask import Flask, render_template, request, redirect, url_for
-import psycopg2
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://localhost/todoapp'
 
-# Create the connections. You can also add a user like this: psycopg2.connect('dbname=todoapp user=anthony')
-conn = psycopg2.connect('dbname=todoapp')
+db = SQLAlchemy(app)
 
-# Open a cursor to perform database operations
-#   After connecting, we're working within a **session** 
-#   and you can start **committing** these **transactions** 
-#       (which are units of work, remember) to start interacting with our database
-cursor = conn.cursor() #call cursor "cur"
+class Todo(db.Model):
+    __tablename__ = 'todos'
+    id = db.Column(db.Integer, primary_key=True)
+    description=  db.Column(db.String(), nullable=False)
 
-# Drop any existing todo tables
-cursor.execute("DROP TABLE IF EXISTS todos;")
+    def __repr__(self):
+        return f"<Todo {self.id} {self.description}>"
 
-# (re)create the todos table
-# (note: triple quotes allow multiline text in python)
-cursor.execute("""
-    CREATE TABLE todos (
-        id BIGSERIAL PRIMARY KEY,
-        description VARCHAR NOT NULL
-    );
-""")
-
-cursor.execute("INSERT INTO todos (description) VALUES ('Go to gym');")
-cursor.execute("INSERT INTO todos (description) VALUES ('Go to picnic');")
-cursor.execute("INSERT INTO todos (description) VALUES ('Go to the factory');")
-
-# Commit, so it does the executions on the database and persists in the database
-conn.commit()
-
-# We can say this is all the work we want to do in this session by calling close on the connection and the cursor 
-# psycopg2 will NOT automatically close out a session for you, so this is something you'll have to do manually every time you start a session
-cursor.close()
-conn.close()
-
-#You can check psql to see if it worked 
-# In terminal:
-#   * psql todoapp #this opens the todoapp inside of psql. If you just wanted to open psql, just write: psql
-#   * \dt
+db.create_all()
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        conn = psycopg2.connect('dbname=todoapp')
-        cursor = conn.cursor()
-        
         data = request.form['item']
-        cursor.execute("INSERT INTO todos (description) VALUES (%s)", (data,)) #psycopg2 uses the %s to sanitize and user inputs, so they can't cause harm. It takes a tuple after the string.
-
-        conn.commit()
-        cursor.close()
-        conn.close()
-
+        todo = Todo(description=data)
+        db.session.add(todo)
+        db.session.commit()
         return redirect(url_for('index'))
-    else: #This is for GET methods
-        conn = psycopg2.connect('dbname=todoapp')
-        cursor = conn.cursor()
-
-        cursor.execute('SELECT * FROM todos;')
-        items = cursor.fetchall()
-        
-        conn.commit()
-        cursor.close()
-        conn.close()
-
-        return render_template('index.html', items=items)
-
+    else: 
+        return render_template('index.html', items=Todo.query.all())
 
 
 if __name__ == '__main__':
